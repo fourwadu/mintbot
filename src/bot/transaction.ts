@@ -5,7 +5,7 @@ import {
 } from "../utils/constants";
 import { CHAIN_ID } from "../utils/env";
 import { FlashbotsBundleProvider } from "@flashbots/ethers-provider-bundle";
-import { provider, wallet } from "./ethers";
+import { provider, wallet } from "./web3";
 
 export async function bundleTransaction(tx: any) {
 	const flashbotsProvider = await FlashbotsBundleProvider.create(
@@ -14,7 +14,7 @@ export async function bundleTransaction(tx: any) {
 		CHAIN_ID == 1 ? FLASHBOTS_ENDPOINT : GOERLI_FLASHBOTS_ENDPOINT
 	);
 
-	provider.on("block", async (blockNumber): Promise<void> => {
+	provider.on("block", async (blockNumber: number): Promise<void> => {
 		const blockDetails = await provider.getBlock(blockNumber);
 
 		if (!blockDetails.baseFeePerGas) {
@@ -27,6 +27,8 @@ export async function bundleTransaction(tx: any) {
 				blockDetails.baseFeePerGas,
 				1
 			);
+
+		console.log(maxBaseFeeInFutureBlock);
 
 		const baseTx = [
 			{

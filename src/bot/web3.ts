@@ -1,5 +1,4 @@
-import Web3 from "web3";
-import { CHAIN_ID } from "./../utils/env";
+import { CHAIN_ID } from "../utils/env";
 import { providers, Contract } from "ethers";
 import { WALLET_PRIVATE_KEY } from "../utils/env";
 import { Wallet, PopulatedTransaction } from "ethers";
@@ -14,7 +13,5 @@ export async function createTx(
 	...args: any[]
 ): Promise<PopulatedTransaction> {
 	const contract = new Contract(contractAddress, abi);
-	const tx = await contract.populateTransaction[method](...args);
-
-	return tx;
+	return await contract.populateTransaction[method](...args);
 }

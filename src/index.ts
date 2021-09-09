@@ -1,5 +1,5 @@
 import web3 from "web3";
-import { createTx } from "./bot/ethers";
+import { createTx } from "./bot/web3";
 import { bundleTransaction } from "./bot/transaction";
 
 (async () => {
