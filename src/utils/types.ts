@@ -1,6 +1,6 @@
 export interface TxSettings {
 	gasLimit?: number;
 	value?: number;
-	gwei: number;
+	gwei?: number;
 	priorityFee?: number;
 }

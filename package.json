@@ -12,6 +12,7 @@
 	"author": "fourwadu",
 	"license": "ISC",
 	"devDependencies": {
+		"@next/eslint-plugin-next": "^11.1.2",
 		"@types/node": "^16.7.2",
 		"ts-node": "^10.2.1",
 		"tslib": "^2.3.1",

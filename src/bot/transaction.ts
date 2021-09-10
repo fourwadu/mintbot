@@ -1,3 +1,6 @@
+import { toGwei } from "./../utils/etc";
+import { TxSettings } from "./../utils/types";
+import { PopulatedTransaction } from "ethers";
 import web3 from "web3";
 import {
 	FLASHBOTS_ENDPOINT,
@@ -7,7 +10,10 @@ import { CHAIN_ID } from "../utils/env";
 import { FlashbotsBundleProvider } from "@flashbots/ethers-provider-bundle";
 import { provider, wallet } from "./web3";
 
-export async function bundleTransaction(tx: any) {
+export async function bundleTransaction(
+	tx: PopulatedTransaction,
+	settings: TxSettings
+) {
 	const flashbotsProvider = await FlashbotsBundleProvider.create(
 		provider,
 		wallet,
@@ -18,7 +24,6 @@ export async function bundleTransaction(tx: any) {
 		const blockDetails = await provider.getBlock(blockNumber);
 
 		if (!blockDetails.baseFeePerGas) {
-			console.log("Found a legacy block. Waiting for next block...");
 			return;
 		}
 
@@ -28,19 +33,17 @@ export async function bundleTransaction(tx: any) {
 				1
 			);
 
-		console.log(maxBaseFeeInFutureBlock);
-
 		const baseTx = [
 			{
 				transaction: {
 					chainId: CHAIN_ID,
-					gasLimit: 230000,
+					gasLimit: settings.gasLimit || blockDetails.gasLimit,
 					type: 2,
-					value: 0,
-					maxFeePerGas: maxBaseFeeInFutureBlock,
-					maxPriorityFeePerGas: web3.utils.toHex(
-						web3.utils.toWei("20", "gwei")
-					),
+					value: web3.utils.toWei(settings.value?.toString() || "0", "ether"),
+					maxFeePerGas: settings.gwei
+						? toGwei(settings.gwei)
+						: maxBaseFeeInFutureBlock,
+					maxPriorityFeePerGas: toGwei(settings.priorityFee || 20),
 					...tx,
 				},
 				signer: wallet,
@@ -48,6 +51,7 @@ export async function bundleTransaction(tx: any) {
 		];
 
 		const bundle = await flashbotsProvider.sendBundle(baseTx, blockNumber + 1);
+		console.log("Bundled");
 
 		if ("error" in bundle) {
 			console.log(bundle.error);
@@ -56,22 +60,18 @@ export async function bundleTransaction(tx: any) {
 
 		const simulation = await bundle.simulate();
 
-		if ("error" in simulation) {
+		if ("error" in simulation || simulation.firstRevert) {
 			console.log("Couldn't submit bundle.");
-			console.log(simulation.error);
+			provider.removeAllListeners();
 			return;
 		}
 
-		console.log(
-			`Submitted bundle with hash ${simulation.results[0].txHash}... Waiting...`
-		);
+		const bundleResponse = await bundle.wait();
 
-		const bundleResponse = (await bundle.wait()) == 1 ?? true;
+		console.log(`Bundle ${bundleResponse ? "not" : "was"} included in block`);
 
-		console.log(
-			`Bundle ${bundleResponse ? "" : "not "}included in block ${
-				blockNumber + 1
-			}`
-		);
+		if (!bundleResponse) {
+			console.log("Minted successfully");
+		}
 	});
 }
