@@ -1,6 +1,7 @@
+import { toGwei } from "./../utils/etc";
 import { WALLET_ADDRESS } from "./../utils/env";
 import { web3 } from "./index";
-import { TransactionQueue, toGwei } from "./../utils/etc";
+import { TransactionQueue } from "./../utils/constants";
 const abi = require("../../abi.json");
 
 export default class Transaction {

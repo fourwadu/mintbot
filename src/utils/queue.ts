@@ -9,7 +9,10 @@ export default class Queue<T> {
 		this._queue.push(entry);
 	}
 
-	public dequeue(): T | undefined {
+	public dequeue(index?: number): T | undefined {
+		if (index) {
+			return this._queue.splice(index, 1)[0];
+		}
 		return this._queue.shift();
 	}
 

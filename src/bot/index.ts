@@ -1,8 +1,9 @@
+import { Tx } from "./../utils/types";
 import { FLASHBOTS_ENDPOINT } from "./../utils/constants";
 import { FlashbotsBundleProvider } from "@flashbots/ethers-provider-bundle";
 import { INFURA_KEY, WALLET_PRIVATE_KEY } from "./../utils/env";
 import Web3 from "web3";
-import { TransactionQueue } from "./../utils/etc";
+import { TransactionQueue } from "./../utils/constants";
 import { CHAIN_ID } from "../utils/env";
 import { providers, Wallet } from "ethers";
 
@@ -13,15 +14,15 @@ export const web3 = new Web3(
 );
 
 export default async function submitBundle() {
-	console.log("Initiated.");
 	const flashbotsProvider = await FlashbotsBundleProvider.create(
 		provider,
 		Wallet.createRandom(),
 		FLASHBOTS_ENDPOINT
 	);
+
 	provider.on("block", async (blockNumber: number) => {
 		const blockDetails = await provider.getBlock(blockNumber);
-		const txBundle: any[] = [];
+		const txBundle: Tx[] = [];
 
 		if (!blockDetails.baseFeePerGas) {
 			return;
@@ -37,11 +38,20 @@ export default async function submitBundle() {
 		);
 
 		if ("error" in bundle) {
-			return;
+			throw new Error("Error with bundle -\n" + JSON.stringify(bundle));
 		}
 
 		const simulation = await bundle.simulate();
 
-		console.log(simulation);
+		if ("error" in simulation) {
+			throw new Error("Error with simulation -\n" + JSON.stringify(simulation));
+		}
+
+		if (await bundle.wait()) {
+			console.log("Bundle not included in block. Trying again...");
+		} else {
+			console.log("Submitted.");
+			Array.from({ length: 3 }, TransactionQueue.dequeue);
+		}
 	});
 }
