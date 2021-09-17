@@ -1,77 +1,45 @@
-import { toGwei } from "./../utils/etc";
-import { TxSettings } from "./../utils/types";
-import { PopulatedTransaction } from "ethers";
-import web3 from "web3";
-import {
-	FLASHBOTS_ENDPOINT,
-	GOERLI_FLASHBOTS_ENDPOINT,
-} from "../utils/constants";
-import { CHAIN_ID } from "../utils/env";
-import { FlashbotsBundleProvider } from "@flashbots/ethers-provider-bundle";
-import { provider, wallet } from "./web3";
+import { WALLET_ADDRESS } from "./../utils/env";
+import { web3 } from "./index";
+import { TransactionQueue, toGwei } from "./../utils/etc";
+const abi = require("../../abi.json");
 
-export async function bundleTransaction(
-	tx: PopulatedTransaction,
-	settings: TxSettings
-) {
-	const flashbotsProvider = await FlashbotsBundleProvider.create(
-		provider,
-		wallet,
-		CHAIN_ID == 1 ? FLASHBOTS_ENDPOINT : GOERLI_FLASHBOTS_ENDPOINT
-	);
+export default class Transaction {
+	contractAddress: string;
+	method: string;
 
-	provider.on("block", async (blockNumber: number): Promise<void> => {
-		const blockDetails = await provider.getBlock(blockNumber);
+	constructor(contractAddress: string, method: string) {
+		Object.assign(this, { contractAddress, method });
+	}
 
-		if (!blockDetails.baseFeePerGas) {
-			return;
-		}
+	private async createTransaction(...args: any[]): Promise<any> {
+		const contract = new web3.eth.Contract(abi, this.contractAddress, {
+			from: "0x7754093c513dc266fe28Bc4381A46D2E0AE30435",
+		});
+		const method = await contract.methods[this.method](...args);
 
-		const maxBaseFeeInFutureBlock =
-			FlashbotsBundleProvider.getMaxBaseFeeInFutureBlock(
-				blockDetails.baseFeePerGas,
-				1
-			);
+		const gasLimit =
+			(await method.estimateGas({
+				to: "0x7754093c513dc266fe28Bc4381A46D2E0AE30435",
+			})) * 1.2;
 
-		const baseTx = [
-			{
-				transaction: {
-					chainId: CHAIN_ID,
-					gasLimit: settings.gasLimit || blockDetails.gasLimit,
-					type: 2,
-					value: web3.utils.toWei(settings.value?.toString() || "0", "ether"),
-					maxFeePerGas: settings.gwei
-						? toGwei(settings.gwei)
-						: maxBaseFeeInFutureBlock,
-					maxPriorityFeePerGas: toGwei(settings.priorityFee || 20),
-					...tx,
-				},
-				signer: wallet,
-			},
-		];
+		const data = await method.encodeABI();
 
-		const bundle = await flashbotsProvider.sendBundle(baseTx, blockNumber + 1);
-		console.log("Bundled");
+		const tx = {
+			from: WALLET_ADDRESS,
+			to: this.contractAddress,
+			gasLimit: Math.ceil(gasLimit),
+			value: 0,
+			maxFeePerGas: toGwei(300),
+			maxPriorityFeePerGas: toGwei(300),
+			chainId: 1,
+			type: 2,
+			data,
+		};
+		return tx;
+	}
 
-		if ("error" in bundle) {
-			console.log(bundle.error);
-			return;
-		}
-
-		const simulation = await bundle.simulate();
-
-		if ("error" in simulation || simulation.firstRevert) {
-			console.log("Couldn't submit bundle.");
-			provider.removeAllListeners();
-			return;
-		}
-
-		const bundleResponse = await bundle.wait();
-
-		console.log(`Bundle ${bundleResponse ? "not" : "was"} included in block`);
-
-		if (!bundleResponse) {
-			console.log("Minted successfully");
-		}
-	});
+	public async queueBundle(...args: any[]) {
+		const transaction = await this.createTransaction(...args);
+		TransactionQueue.enqueue(transaction);
+	}
 }
