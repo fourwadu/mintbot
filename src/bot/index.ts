@@ -1,11 +1,10 @@
-import { Tx } from "./../utils/types";
-import { FLASHBOTS_ENDPOINT } from "./../utils/constants";
+import { providers, Wallet } from "ethers";
 import { FlashbotsBundleProvider } from "@flashbots/ethers-provider-bundle";
 import { INFURA_KEY, WALLET_PRIVATE_KEY } from "./../utils/env";
 import Web3 from "web3";
-import { TransactionQueue } from "./../utils/constants";
 import { CHAIN_ID } from "../utils/env";
-import { providers, Wallet } from "ethers";
+import { FLASHBOTS_ENDPOINT, TransactionQueue } from "./../utils/constants";
+import { Tx } from "./../utils/types";
 
 export const provider = new providers.InfuraProvider(CHAIN_ID);
 export const wallet = new Wallet(WALLET_PRIVATE_KEY, provider);
@@ -13,7 +12,7 @@ export const web3 = new Web3(
 	new Web3.providers.HttpProvider(`https://mainnet.infura.io/v3/${INFURA_KEY}`)
 );
 
-export default async function submitBundle() {
+export default async function submitBundle(): Promise<void> {
 	const flashbotsProvider = await FlashbotsBundleProvider.create(
 		provider,
 		Wallet.createRandom(),
@@ -23,6 +22,8 @@ export default async function submitBundle() {
 	provider.on("block", async (blockNumber: number) => {
 		const blockDetails = await provider.getBlock(blockNumber);
 		const txBundle: Tx[] = [];
+
+		console.log("Found block" + blockNumber);
 
 		if (!blockDetails.baseFeePerGas) {
 			return;
@@ -47,8 +48,11 @@ export default async function submitBundle() {
 			throw new Error("Error with simulation -\n" + JSON.stringify(simulation));
 		}
 
-		if (await bundle.wait()) {
+		const wait = await bundle.wait();
+
+		if (wait) {
 			console.log("Bundle not included in block. Trying again...");
+			return;
 		} else {
 			console.log("Submitted.");
 			Array.from({ length: 3 }, TransactionQueue.dequeue);

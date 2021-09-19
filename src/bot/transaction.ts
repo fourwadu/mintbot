@@ -1,26 +1,33 @@
+import { PopulatedTransaction } from "ethers";
 import { toGwei } from "./../utils/etc";
 import { WALLET_ADDRESS } from "./../utils/env";
 import { web3 } from "./index";
 import { TransactionQueue } from "./../utils/constants";
-const abi = require("../../abi.json");
+import { BigNumber } from "@ethersproject/bignumber";
+const abi = require("../../data/abi.json");
 
 export default class Transaction {
 	contractAddress: string;
 	method: string;
+	args: any[];
 
 	constructor(contractAddress: string, method: string) {
 		Object.assign(this, { contractAddress, method });
 	}
 
-	private async createTransaction(...args: any[]): Promise<any> {
+	public async createTransaction(
+		value: number,
+		...args: any[]
+	): Promise<PopulatedTransaction> {
 		const contract = new web3.eth.Contract(abi, this.contractAddress, {
-			from: "0x7754093c513dc266fe28Bc4381A46D2E0AE30435",
+			from: WALLET_ADDRESS,
 		});
+
 		const method = await contract.methods[this.method](...args);
 
 		const gasLimit =
 			(await method.estimateGas({
-				to: "0x7754093c513dc266fe28Bc4381A46D2E0AE30435",
+				to: WALLET_ADDRESS,
 			})) * 1.2;
 
 		const data = await method.encodeABI();
@@ -28,19 +35,17 @@ export default class Transaction {
 		const tx = {
 			from: WALLET_ADDRESS,
 			to: this.contractAddress,
-			gasLimit: Math.ceil(gasLimit),
-			value: 0,
+			gasLimit: BigNumber.from(Math.ceil(gasLimit)),
+			value: toGwei(value),
 			maxFeePerGas: toGwei(300),
 			maxPriorityFeePerGas: toGwei(300),
 			chainId: 1,
 			type: 2,
 			data,
 		};
-		return tx;
-	}
 
-	public async queueBundle(...args: any[]) {
-		const transaction = await this.createTransaction(...args);
-		TransactionQueue.enqueue(transaction);
+		TransactionQueue.enqueue(tx);
+
+		return tx;
 	}
 }
