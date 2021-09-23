@@ -3,11 +3,11 @@
 		"inputs": [
 			{
 				"internalType": "uint256",
-				"name": "tokenQuantity",
-				"type": "uint256"
+				"name": "amount",
+				"type": "uint8"
 			}
 		],
-		"name": "buy",
+		"name": "mintTokens",
 		"outputs": [],
 		"stateMutability": "payable",
 		"type": "function"

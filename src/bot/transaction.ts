@@ -1,5 +1,5 @@
 import { PopulatedTransaction } from "ethers";
-import { toGwei } from "./../utils/etc";
+import { sleep, toGwei } from "./../utils/etc";
 import { WALLET_ADDRESS } from "./../utils/env";
 import { web3 } from "./index";
 import { TransactionQueue } from "./../utils/constants";
@@ -16,7 +16,7 @@ export default class Transaction {
 	}
 
 	public async createTransaction(
-		value: number,
+		settings: { value: number; maxFee: number; priorityFee: number },
 		...args: any[]
 	): Promise<PopulatedTransaction> {
 		const contract = new web3.eth.Contract(abi, this.contractAddress, {
@@ -25,27 +25,35 @@ export default class Transaction {
 
 		const method = await contract.methods[this.method](...args);
 
-		const gasLimit =
-			(await method.estimateGas({
-				to: WALLET_ADDRESS,
-			})) * 1.2;
+		try {
+			const gasLimit =
+				(await method.estimateGas({
+					to: WALLET_ADDRESS,
+				})) * 1.2;
 
-		const data = await method.encodeABI();
+			console.log(gasLimit);
 
-		const tx = {
-			from: WALLET_ADDRESS,
-			to: this.contractAddress,
-			gasLimit: BigNumber.from(Math.ceil(gasLimit)),
-			value: toGwei(value),
-			maxFeePerGas: toGwei(300),
-			maxPriorityFeePerGas: toGwei(300),
-			chainId: 1,
-			type: 2,
-			data,
-		};
+			const data = await method.encodeABI();
 
-		TransactionQueue.enqueue(tx);
+			console.log(data);
+			const tx = {
+				from: WALLET_ADDRESS,
+				to: this.contractAddress,
+				gasLimit: BigNumber.from(Math.ceil(gasLimit)),
+				value: toGwei(settings.value),
+				maxFeePerGas: toGwei(settings.maxFee),
+				maxPriorityFeePerGas: toGwei(settings.priorityFee),
+				chainId: 1,
+				type: 2,
+				data,
+			};
 
-		return tx;
+			TransactionQueue.enqueue(tx);
+			return tx;
+		} catch (err: any) {
+			console.log("Execution reverted.");
+			await sleep(1500);
+			return this.createTransaction(settings, ...args);
+		}
 	}
 }

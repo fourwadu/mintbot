@@ -23,7 +23,7 @@ export default async function submitBundle(): Promise<void> {
 		const blockDetails = await provider.getBlock(blockNumber);
 		const txBundle: Tx[] = [];
 
-		console.log("Found block" + blockNumber);
+		console.log("Found block", blockNumber);
 
 		if (!blockDetails.baseFeePerGas) {
 			return;
@@ -45,7 +45,8 @@ export default async function submitBundle(): Promise<void> {
 		const simulation = await bundle.simulate();
 
 		if ("error" in simulation) {
-			throw new Error("Error with simulation -\n" + JSON.stringify(simulation));
+			console.log("Error with simulation -\n" + JSON.stringify(simulation));
+			return;
 		}
 
 		const wait = await bundle.wait();

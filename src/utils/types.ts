@@ -21,3 +21,9 @@ export interface AnswerType {
 	priorityFee: number;
 	quantity: number;
 }
+
+export interface Settings {
+	maxFee: number;
+	priorityFee: number;
+	value: number;
+}

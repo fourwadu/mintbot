@@ -1,5 +1,4 @@
 import { isEmptyObject } from "./utils/etc";
-import { PopulatedTransaction } from "ethers";
 import { AnswerType } from "./utils/types";
 import { INPUTS } from "./utils/constants";
 import Transaction from "./bot/transaction";
@@ -9,16 +8,16 @@ import config from "../data/config.json";
 
 (async () => {
 	if (config && !isEmptyObject(config)) {
+		console.log("Continuing with config\n", config);
 		const confirmation = await inquirer.prompt([
 			{ name: "confirm", type: "confirm", default: false },
 		]);
 		if (!confirmation.confirm) {
 			return;
 		}
-		console.log("Continuing with config\n", config);
 	}
 
-	const answers = isEmptyObject(config)
+	const answers: AnswerType = isEmptyObject(config)
 		? await inquirer.prompt(INPUTS)
 		: config;
 
@@ -26,11 +25,18 @@ import config from "../data/config.json";
 
 	try {
 		[...Array(answers.quantity)].forEach(async () => {
-			const transaction = await T.createTransaction(answers.value, answers.arg);
+			await T.createTransaction(
+				{
+					value: answers.value,
+					maxFee: answers.maxFee,
+					priorityFee: answers.priorityFee,
+				},
+				answers.arg
+			);
 		});
 	} catch (err) {
 		console.error(err);
 	}
 
-	submitBundle();
+	// submitBundle();
 })();
