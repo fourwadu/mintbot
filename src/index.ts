@@ -38,5 +38,5 @@ import config from "../data/config.json";
 		console.error(err);
 	}
 
-	// submitBundle();
+	submitBundle();
 })();

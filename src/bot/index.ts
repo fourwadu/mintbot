@@ -29,7 +29,13 @@ export default async function submitBundle(): Promise<void> {
 			return;
 		}
 
-		TransactionQueue.peekTo(3)?.forEach(async (transaction) => {
+		const currentQueue = TransactionQueue.peekTo(3);
+
+		if (currentQueue?.length === 0) {
+			return;
+		}
+
+		currentQueue.forEach(async (transaction) => {
 			txBundle.push({ transaction, signer: wallet });
 		});
 

@@ -24,7 +24,7 @@ export default class Queue<T> {
 		return this._queue[index];
 	}
 
-	public peekTo(index: number): T[] | undefined {
+	public peekTo(index: number): T[] {
 		return this._queue.slice(-index);
 	}
 

@@ -31,11 +31,8 @@ export default class Transaction {
 					to: WALLET_ADDRESS,
 				})) * 1.2;
 
-			console.log(gasLimit);
-
 			const data = await method.encodeABI();
 
-			console.log(data);
 			const tx = {
 				from: WALLET_ADDRESS,
 				to: this.contractAddress,
