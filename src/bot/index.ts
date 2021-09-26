@@ -1,16 +1,13 @@
 import { providers, Wallet } from "ethers";
 import { FlashbotsBundleProvider } from "@flashbots/ethers-provider-bundle";
-import { INFURA_KEY, WALLET_PRIVATE_KEY } from "./../utils/env";
-import Web3 from "web3";
-import { CHAIN_ID } from "../utils/env";
-import { FLASHBOTS_ENDPOINT, TransactionQueue } from "./../utils/constants";
-import { Tx } from "./../utils/types";
 
-export const provider = new providers.InfuraProvider(CHAIN_ID);
-export const wallet = new Wallet(WALLET_PRIVATE_KEY, provider);
-export const web3 = new Web3(
-	new Web3.providers.HttpProvider(`https://mainnet.infura.io/v3/${INFURA_KEY}`)
-);
+import {
+	FLASHBOTS_ENDPOINT,
+	provider,
+	TransactionQueue,
+	wallet,
+} from "./../utils/constants";
+import { Tx } from "./../utils/types";
 
 export default async function submitBundle(): Promise<void> {
 	const flashbotsProvider = await FlashbotsBundleProvider.create(

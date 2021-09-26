@@ -1,9 +1,9 @@
 {
-	"address": "0xdd69da9a83cedc730bc4d3c56e96d29acc05ecde",
-	"method": "mintTokens",
-	"arg": 5,
-	"value": 0.5,
-	"maxFee": 1000,
-	"priorityFee": 500,
-	"quantity": 1
+	"address": "0x4eb28031a54e8e789cd09feb7e79078fbe23b028",
+	"method": "mint",
+	"arg": 1,
+	"value": 0.02,
+	"maxFee": 70,
+	"priorityFee": 10,
+	"quantity": 2
 }

@@ -1,11 +1,17 @@
-import { PopulatedTransaction } from "ethers";
-import Queue from "./queue";
+import { WALLET_PRIVATE_KEY, CHAIN_ID } from "./env";
+import { Wallet } from "ethers";
+import { providers } from "ethers";
+import { TransactionType } from "./types";
+
 import abi from "../../data/abi.json";
+import Queue from "./queue";
 export const FLASHBOTS_ENDPOINT = "https://relay.flashbots.net/";
 
 export const GOERLI_FLASHBOTS_ENDPOINT = "https://relay-goerli.flashbots.net/";
 
-export const TransactionQueue = new Queue<PopulatedTransaction>();
+export const TransactionQueue = new Queue<TransactionType>();
+export const provider = new providers.InfuraProvider(CHAIN_ID);
+export const wallet = new Wallet(WALLET_PRIVATE_KEY, provider);
 
 export const INPUTS = [
 	{ name: "address", type: "input", message: "Enter the contract address:" },

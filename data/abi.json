@@ -1,13 +1,9 @@
 [
 	{
 		"inputs": [
-			{
-				"internalType": "uint8",
-				"name": "amount",
-				"type": "uint8"
-			}
+			{ "internalType": "uint256", "name": "amount_", "type": "uint256" }
 		],
-		"name": "mintTokens",
+		"name": "mint",
 		"outputs": [],
 		"stateMutability": "payable",
 		"type": "function"

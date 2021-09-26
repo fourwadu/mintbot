@@ -1,5 +1,7 @@
+import { BigNumber } from "@ethersproject/bignumber";
+import { AccessList } from "@ethersproject/transactions";
 import { Wallet } from "ethers";
-import { PopulatedTransaction } from "ethers";
+// import { PopulatedTransaction } from "ethers";
 export interface TxSettings {
 	gasLimit?: number;
 	value?: number;
@@ -8,7 +10,7 @@ export interface TxSettings {
 }
 
 export interface Tx {
-	transaction: PopulatedTransaction;
+	transaction: TransactionType;
 	signer: Wallet;
 }
 
@@ -26,4 +28,23 @@ export interface Settings {
 	maxFee: number;
 	priorityFee: number;
 	value: number;
+}
+
+export interface TransactionType {
+	to?: string;
+	from?: string;
+	nonce?: number;
+
+	gasLimit?: BigNumber | number;
+	gasPrice?: BigNumber;
+
+	data?: string;
+	value?: any;
+	chainId?: number;
+
+	type?: number;
+	accessList?: AccessList;
+
+	maxFeePerGas?: BigNumber;
+	maxPriorityFeePerGas?: BigNumber;
 }

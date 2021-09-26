@@ -1,10 +1,15 @@
 import { BigNumber } from "@ethersproject/bignumber";
 import web3 from "web3";
+import { ethers } from "ethers";
 
 export const toGwei = (number: number) => {
 	return BigNumber.from(
 		web3.utils.toHex(web3.utils.toWei(number.toString(), "gwei"))
 	);
+};
+
+export const toEth = (number: number) => {
+	return ethers.utils.parseUnits(number.toString(), "ether");
 };
 
 export const randomNumber = (min: number, max: number): number => {
