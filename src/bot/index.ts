@@ -1,5 +1,8 @@
 import { providers, Wallet } from "ethers";
-import { FlashbotsBundleProvider } from "@flashbots/ethers-provider-bundle";
+import {
+	FlashbotsBundleProvider,
+	FlashbotsBundleResolution,
+} from "@flashbots/ethers-provider-bundle";
 
 import {
 	FLASHBOTS_ENDPOINT,
@@ -21,13 +24,11 @@ export default async function submitBundle(): Promise<void> {
 		const txBundle: Tx[] = [];
 
 		console.log("Found block", blockNumber);
-
 		if (!blockDetails.baseFeePerGas) {
 			return;
 		}
 
 		const currentQueue = TransactionQueue.peekTo(3);
-
 		if (currentQueue?.length === 0) {
 			return;
 		}
@@ -36,30 +37,29 @@ export default async function submitBundle(): Promise<void> {
 			txBundle.push({ transaction, signer: wallet });
 		});
 
-		const bundle = await flashbotsProvider.sendBundle(
+		const bundleResponse = await flashbotsProvider.sendBundle(
 			txBundle,
 			blockNumber + 1
 		);
-
-		if ("error" in bundle) {
-			throw new Error("Error with bundle -\n" + JSON.stringify(bundle));
+		if ("error" in bundleResponse) {
+			throw new Error(bundleResponse.error.message);
 		}
 
-		const simulation = await bundle.simulate();
-
+		const simulation = await bundleResponse.simulate();
 		if ("error" in simulation) {
 			console.log("Error with simulation -\n" + JSON.stringify(simulation));
 			return;
 		}
 
-		const wait = await bundle.wait();
+		const bundleResolution = await bundleResponse.wait();
 
-		if (wait) {
-			console.log("Bundle not included in block. Trying again...");
-			return;
-		} else {
-			console.log("Submitted.");
+		if (bundleResolution === FlashbotsBundleResolution.BundleIncluded) {
+			console.log(`Submitted bundle in block ${blockNumber + 1}`);
 			Array.from({ length: 3 }, TransactionQueue.dequeue);
+		} else if (
+			bundleResolution === FlashbotsBundleResolution.BlockPassedWithoutInclusion
+		) {
+			console.log(`Not included in ${blockNumber}`);
 		}
 	});
 }
