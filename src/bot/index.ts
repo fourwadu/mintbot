@@ -1,4 +1,4 @@
-import { providers, Wallet } from "ethers";
+import { Wallet } from "ethers";
 import {
 	FlashbotsBundleProvider,
 	FlashbotsBundleResolution,
@@ -41,14 +41,14 @@ export default async function submitBundle(): Promise<void> {
 			txBundle,
 			blockNumber + 1
 		);
+
 		if ("error" in bundleResponse) {
 			throw new Error(bundleResponse.error.message);
 		}
 
 		const simulation = await bundleResponse.simulate();
 		if ("error" in simulation) {
-			console.log("Error with simulation -\n" + JSON.stringify(simulation));
-			return;
+			throw new Error(simulation.error.message);
 		}
 
 		const bundleResolution = await bundleResponse.wait();

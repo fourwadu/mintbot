@@ -20,6 +20,6 @@ export const sleep = (ms: number) => {
 	return new Promise((resolve) => setTimeout(resolve, ms));
 };
 
-export const isEmptyObject = (obj: Object) => {
-	return Object.keys(obj).length === 0 && obj.constructor === Object;
+export const isEmptyObject = (n: Object) => {
+	return Object.keys(n).length === 0 && n.constructor === Object;
 };
