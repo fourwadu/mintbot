@@ -28,8 +28,7 @@ import config from "../data/config.json";
 			await T.createTransaction(
 				{
 					value: answers.value,
-					maxFee: answers.maxFee,
-					priorityFee: answers.priorityFee,
+					gas: answers.gas,
 				},
 				answers.arg
 			);

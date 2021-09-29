@@ -3,7 +3,6 @@
 	"method": "mint",
 	"arg": 1,
 	"value": 0.02,
-	"maxFee": 70,
-	"priorityFee": 10,
+	"gas": 70,
 	"quantity": 2
 }

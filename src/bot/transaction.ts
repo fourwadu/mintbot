@@ -16,12 +16,12 @@ export default class Transaction {
 	}
 
 	public async createTransaction(
-		settings: { value: number; maxFee: number; priorityFee: number },
+		settings: { value: number; gas: number },
 		...args: any[]
 	): Promise<PopulatedTransaction> {
 		const contract = new ethers.Contract(this.contractAddress, abi, provider);
-
 		const populated = await contract.populateTransaction[this.method](...args);
+
 		const gasLimit = (
 			await provider.estimateGas({
 				...populated,
@@ -29,14 +29,14 @@ export default class Transaction {
 				to: this.contractAddress,
 				from: WALLET_ADDRESS,
 			})
-		).mul(1.2);
+		).add(BigNumber.from(10000));
 
 		try {
 			const tx: PopulatedTransaction = {
 				from: WALLET_ADDRESS,
 				value: toEth(settings.value),
-				maxFeePerGas: toGwei(settings.maxFee),
-				maxPriorityFeePerGas: toGwei(settings.priorityFee),
+				maxPriorityFeePerGas: toGwei(settings.gas),
+				maxFeePerGas: toGwei(settings.gas),
 				chainId: 1,
 				type: 2,
 				gasLimit,

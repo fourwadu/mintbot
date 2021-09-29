@@ -1,13 +1,6 @@
 import { BigNumber } from "@ethersproject/bignumber";
 import { AccessList } from "@ethersproject/transactions";
 import { Wallet } from "ethers";
-// import { PopulatedTransaction } from "ethers";
-export interface TxSettings {
-	gasLimit?: number;
-	value?: number;
-	gwei?: number;
-	priorityFee?: number;
-}
 
 export interface Tx {
 	transaction: TransactionType;
@@ -19,14 +12,12 @@ export interface AnswerType {
 	method: string;
 	arg: string | undefined | number;
 	value: number;
-	maxFee: number;
-	priorityFee: number;
+	gas: number;
 	quantity: number;
 }
 
 export interface Settings {
-	maxFee: number;
-	priorityFee: number;
+	gas: number;
 	value: number;
 }
 

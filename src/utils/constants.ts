@@ -36,16 +36,10 @@ export const INPUTS = [
 		message: "Enter the value of your transaction:",
 	},
 	{
-		name: "maxFee",
+		name: "gas",
 		type: "number",
 		default: 100,
-		message: "Enter the max fee of your transaction:",
-	},
-	{
-		name: "priorityFee",
-		type: "number",
-		default: 50,
-		message: "Enter the priority fee of your transaction:",
+		message: "Enter the gas fee of your transaction:",
 	},
 	{
 		name: "quantity",
