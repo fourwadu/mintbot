@@ -28,7 +28,7 @@ export default async function submitBundle(): Promise<void> {
 			return;
 		}
 
-		const currentQueue = TransactionQueue.peekTo(3);
+		const currentQueue = TransactionQueue.peekTo(2);
 		if (currentQueue?.length === 0) {
 			return;
 		}
@@ -55,7 +55,7 @@ export default async function submitBundle(): Promise<void> {
 
 		if (bundleResolution === FlashbotsBundleResolution.BundleIncluded) {
 			console.log(`Submitted bundle in block ${blockNumber + 1}`);
-			Array.from({ length: 3 }, TransactionQueue.dequeue);
+			Array.from({ length: 2 }, TransactionQueue.dequeue);
 		} else if (
 			bundleResolution === FlashbotsBundleResolution.BlockPassedWithoutInclusion
 		) {

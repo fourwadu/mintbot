@@ -5,6 +5,7 @@ import { TransactionType } from "./types";
 
 import abi from "../../data/abi.json";
 import Queue from "./queue";
+
 export const FLASHBOTS_ENDPOINT = "https://relay.flashbots.net/";
 
 export const GOERLI_FLASHBOTS_ENDPOINT = "https://relay-goerli.flashbots.net/";

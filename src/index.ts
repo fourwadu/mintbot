@@ -9,6 +9,7 @@ import config from "../data/config.json";
 (async () => {
 	if (config && !isEmptyObject(config)) {
 		console.log("Continuing with config\n", config);
+
 		const confirmation = await inquirer.prompt([
 			{ name: "confirm", type: "confirm", default: false },
 		]);
@@ -17,9 +18,7 @@ import config from "../data/config.json";
 		}
 	}
 
-	const answers: AnswerType = isEmptyObject(config)
-		? await inquirer.prompt(INPUTS)
-		: config;
+	const answers = config;
 
 	const T = new Transaction(answers.address, answers.method);
 
