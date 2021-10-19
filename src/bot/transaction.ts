@@ -35,8 +35,8 @@ export default class Transaction {
 			const tx: PopulatedTransaction = {
 				from: WALLET_ADDRESS,
 				value: toEth(settings.value),
-				maxPriorityFeePerGas: toGwei(settings.gas),
 				maxFeePerGas: toGwei(settings.gas),
+				maxPriorityFeePerGas: toGwei(settings.gas),
 				chainId: 1,
 				type: 2,
 				gasLimit,
@@ -46,7 +46,7 @@ export default class Transaction {
 			TransactionQueue.enqueue(tx);
 			return tx;
 		} catch (err: any) {
-			console.log(err.error.message || err);
+			// console.log(err.error.message || err);
 			await sleep(1500);
 			return this.createTransaction(settings, ...args);
 		}

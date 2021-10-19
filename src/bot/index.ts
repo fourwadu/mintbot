@@ -1,7 +1,9 @@
+import { simulateBundle } from "./../utils/etc";
 import { Wallet } from "ethers";
 import {
 	FlashbotsBundleProvider,
 	FlashbotsBundleResolution,
+	FlashbotsBundleTransaction,
 } from "@flashbots/ethers-provider-bundle";
 
 import {
@@ -21,7 +23,7 @@ export default async function submitBundle(): Promise<void> {
 
 	provider.on("block", async (blockNumber: number) => {
 		const blockDetails = await provider.getBlock(blockNumber);
-		const txBundle: Tx[] = [];
+		const txBundle: FlashbotsBundleTransaction[] = [];
 
 		console.log("Found block", blockNumber);
 		if (!blockDetails.baseFeePerGas) {
@@ -37,6 +39,15 @@ export default async function submitBundle(): Promise<void> {
 			txBundle.push({ transaction, signer: wallet });
 		});
 
+		try {
+			var gasUsed = await simulateBundle(flashbotsProvider, txBundle);
+		} catch (err) {
+			console.log(err);
+			return;
+		}
+
+		console.log(gasUsed);
+
 		const bundleResponse = await flashbotsProvider.sendBundle(
 			txBundle,
 			blockNumber + 1
@@ -45,12 +56,6 @@ export default async function submitBundle(): Promise<void> {
 		if ("error" in bundleResponse) {
 			throw new Error(bundleResponse.error.message);
 		}
-
-		const simulation = await bundleResponse.simulate();
-		if ("error" in simulation) {
-			throw new Error(simulation.error.message);
-		}
-
 		const bundleResolution = await bundleResponse.wait();
 
 		if (bundleResolution === FlashbotsBundleResolution.BundleIncluded) {

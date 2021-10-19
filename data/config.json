@@ -1,8 +1,8 @@
 {
-	"address": "0xd455550af4a7558b0beec5eaec2cc415c4ff4039",
-	"method": "mint",
-	"arg": null,
-	"value": 0.1312,
-	"gas": 1000,
+	"address": "0x09151ae179692894c931276d546ca5a2f1907326",
+	"method": "claim",
+	"arg": 3317,
+	"value": 0,
+	"gas": 50,
 	"quantity": 1
 }
